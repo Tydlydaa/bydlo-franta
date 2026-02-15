@@ -61,7 +61,7 @@ export function DesignerCard({ designer, showMatchScore = false, isLoadingScore 
             </div>
             <Badge variant="outline" className="mt-1">{specialtyLabel[designer.specialty]}</Badge>
             <p className="text-sm text-muted-foreground mt-1">
-              {designer.location} · €{designer.hourlyRate}/hod · {designer.availability === 'immediate' ? 'ihned' : designer.availability === 'within-week' ? 'do týdne' : 'do měsíce'}
+              {designer.location} · {designer.consultationPrice} · {designer.availability === 'immediate' ? 'ihned' : designer.availability === 'within-week' ? 'do týdne' : 'do měsíce'}
             </p>
             {isLoadingScore && !showMatchScore && (
               <Skeleton className="h-3.5 w-48 mt-1.5 rounded" />

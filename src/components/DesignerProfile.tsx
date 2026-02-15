@@ -100,7 +100,7 @@ export function DesignerProfile({ designer, onBack }: DesignerProfileProps) {
                 </span>
               </div>
               <span className="font-semibold text-foreground">
-                &euro;{designer.hourlyRate}/hod
+                {designer.consultationPrice}
               </span>
             </div>
 
@@ -128,6 +128,12 @@ export function DesignerProfile({ designer, onBack }: DesignerProfileProps) {
           <p className="text-foreground leading-relaxed">{designer.shortBio}</p>
         </section>
 
+        {/* What you get */}
+        <section className="space-y-2">
+          <h2 className="text-lg font-bold text-foreground">Co získáš</h2>
+          <p className="text-foreground leading-relaxed">{designer.whatYouGet}</p>
+        </section>
+
         {/* Approach */}
         <section className="space-y-2">
           <h2 className="text-lg font-bold text-foreground">Jak pracuji</h2>
@@ -135,6 +141,33 @@ export function DesignerProfile({ designer, onBack }: DesignerProfileProps) {
         </section>
 
         <Separator />
+
+        {/* Testimonials / References */}
+        {designer.testimonials && designer.testimonials.length > 0 && (
+          <>
+            <section className="space-y-4">
+              <h2 className="text-lg font-bold text-foreground">Reference</h2>
+              <div className="space-y-4">
+                {designer.testimonials.map((testimonial, index) => (
+                  <div key={index} className="border-l-2 border-primary/30 pl-4 py-2">
+                    <p className="text-foreground italic leading-relaxed">
+                      "{testimonial.text}"
+                    </p>
+                    <div className="mt-2 text-sm">
+                      <p className="font-medium text-muted-foreground">
+                        — {testimonial.clientName}
+                      </p>
+                      {testimonial.project && (
+                        <p className="text-subtle text-xs mt-0.5">{testimonial.project}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+            <Separator />
+          </>
+        )}
 
         {/* Portfolio */}
         <section className="space-y-4">

@@ -155,15 +155,46 @@ export function LandingPage() {
               designéra, který ti pomůže.
             </p>
 
+            {/* Quick scenarios — moved above textarea */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-subtle">
+                Typické situace
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_EXAMPLES.map((ex) => (
+                  <Button
+                    key={ex.label}
+                    variant="outline"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    onClick={() => setSituationText(ex.text)}
+                  >
+                    {ex.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             {/* Textarea with inline submit */}
-            <div>
+            <div className="space-y-2">
+              {/* "Start here" badge */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-primary">
+                  👇 Začni zde
+                </span>
+              </div>
+
               <div className="relative">
                 <Textarea
                   placeholder="Příští měsíc se stěhujeme do sdíleného bytu a žádný z našeho nábytku k sobě moc nepasuje. Obývák je dlouhý a úzký a nevíme, jak ho zařídit..."
                   value={situationText}
                   onChange={(e) => setSituationText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="min-h-[140px] lg:min-h-[180px] pr-14 resize-none text-base shadow-sm focus-visible:ring-ring"
+                  className={`min-h-[140px] lg:min-h-[180px] pr-14 resize-none text-base shadow-sm focus-visible:ring-ring transition-all duration-300 ${
+                    situationText.length === 0
+                      ? 'ring-2 ring-primary/20 animate-pulse-glow'
+                      : ''
+                  }`}
                   maxLength={500}
                 />
                 <Button
@@ -183,26 +214,6 @@ export function LandingPage() {
                   : ''}
                 {situationText.length >= MIN_LENGTH ? ' · můžeš pokračovat' : ''}
               </p>
-            </div>
-
-            {/* Quick scenarios */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-subtle">
-                Typické situace
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {QUICK_EXAMPLES.map((ex) => (
-                  <Button
-                    key={ex.label}
-                    variant="outline"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    onClick={() => setSituationText(ex.text)}
-                  >
-                    {ex.label}
-                  </Button>
-                ))}
-              </div>
             </div>
           </div>
 
