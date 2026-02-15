@@ -8,8 +8,8 @@ import type { FilterState } from '@/types'
 const defaultFilters: FilterState = {
   location: 'Všechna města',
   specialty: 'Všechny obory',
-  rateMin: 0,
-  rateMax: 200,
+  rateMin: 1000,
+  rateMax: 3000,
   availability: [],
 }
 
@@ -24,8 +24,21 @@ export function BrowsePage() {
       const spec = filters.specialty === 'Interiérový design' ? 'interior' : filters.specialty === 'Architektura' ? 'architect' : 'both'
       list = list.filter((d) => d.specialty === spec)
     }
-    if (filters.rateMax < 200) list = list.filter((d) => d.hourlyRate <= filters.rateMax)
-    if (filters.rateMin > 0) list = list.filter((d) => d.hourlyRate >= filters.rateMin)
+    // Filter by consultation price instead of hourly rate
+    if (filters.rateMax < 3000) {
+      list = list.filter((d) => {
+        const priceMatch = d.consultationPrice?.match(/(\d+)\s*Kč/)
+        const consultationPrice = priceMatch ? parseInt(priceMatch[1]) : d.hourlyRate * 1.5
+        return consultationPrice <= filters.rateMax
+      })
+    }
+    if (filters.rateMin > 1000) {
+      list = list.filter((d) => {
+        const priceMatch = d.consultationPrice?.match(/(\d+)\s*Kč/)
+        const consultationPrice = priceMatch ? parseInt(priceMatch[1]) : d.hourlyRate * 1.5
+        return consultationPrice >= filters.rateMin
+      })
+    }
     if (filters.availability.length) list = list.filter((d) => filters.availability.includes(d.availability))
     return list
   }, [filters])

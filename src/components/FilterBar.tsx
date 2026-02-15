@@ -47,7 +47,7 @@ export function FilterBar({
   const activeCount =
     (filters.location !== 'Všechna města' ? 1 : 0) +
     (filters.specialty !== 'Všechny obory' ? 1 : 0) +
-    (filters.rateMin > 0 || filters.rateMax < 200 ? 1 : 0) +
+    (filters.rateMin > 1000 || filters.rateMax < 3000 ? 1 : 0) +
     filters.availability.length
 
   return (
@@ -88,11 +88,11 @@ export function FilterBar({
           </Select>
         </div>
         <div>
-          <label className="text-xs text-muted-foreground block mb-1">Sazba €/hod: {filters.rateMin}–{filters.rateMax}</label>
+          <label className="text-xs text-muted-foreground block mb-1">Konzultace (Kč): {filters.rateMin}–{filters.rateMax}</label>
           <Slider
-            min={0}
-            max={200}
-            step={5}
+            min={1000}
+            max={3000}
+            step={100}
             value={[filters.rateMax]}
             onValueChange={([v]) => update({ rateMax: v })}
           />

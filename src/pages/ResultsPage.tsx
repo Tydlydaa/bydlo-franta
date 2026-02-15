@@ -11,8 +11,8 @@ import type { FilterState, ConversationMessage } from '@/types'
 const defaultFilters: FilterState = {
   location: 'Všechna města',
   specialty: 'Všechny obory',
-  rateMin: 0,
-  rateMax: 200,
+  rateMin: 1000,
+  rateMax: 3000,
   availability: [],
 }
 
@@ -29,6 +29,7 @@ const designerSummaries: DesignerSummary[] = designers.map((d) => ({
   specialty: specialtyLabel[d.specialty] ?? d.specialty,
   location: d.location,
   hourlyRate: d.hourlyRate,
+  consultationPrice: d.consultationPrice,
   availability: d.availability,
   yearsExperience: d.yearsExperience,
   tags: d.tags,
@@ -99,8 +100,21 @@ export function ResultsPage() {
       const spec = filters.specialty === 'Interiérový design' ? 'interior' : filters.specialty === 'Architektura' ? 'architect' : 'both'
       list = list.filter((d) => d.specialty === spec)
     }
-    if (filters.rateMax < 200) list = list.filter((d) => d.hourlyRate <= filters.rateMax)
-    if (filters.rateMin > 0) list = list.filter((d) => d.hourlyRate >= filters.rateMin)
+    // Filter by consultation price instead of hourly rate
+    if (filters.rateMax < 3000) {
+      list = list.filter((d) => {
+        const priceMatch = d.consultationPrice?.match(/(\d+)\s*Kč/)
+        const consultationPrice = priceMatch ? parseInt(priceMatch[1]) : d.hourlyRate * 1.5
+        return consultationPrice <= filters.rateMax
+      })
+    }
+    if (filters.rateMin > 1000) {
+      list = list.filter((d) => {
+        const priceMatch = d.consultationPrice?.match(/(\d+)\s*Kč/)
+        const consultationPrice = priceMatch ? parseInt(priceMatch[1]) : d.hourlyRate * 1.5
+        return consultationPrice >= filters.rateMin
+      })
+    }
     if (filters.availability.length) list = list.filter((d) => filters.availability.includes(d.availability))
     if (sortBy === 'match' && hasScores) list.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0))
     if (sortBy === 'rate') list.sort((a, b) => a.hourlyRate - b.hourlyRate)
@@ -121,7 +135,7 @@ export function ResultsPage() {
         </h1>
         {state?.extractedNeeds && Object.keys(state.extractedNeeds).length > 0 && (
           <p className="text-muted-foreground text-sm mb-6">
-            Na základě: {state.extractedNeeds.spaceType ?? 'váš prostor'}, {state.extractedNeeds.budget ? `rozpočet ~€${state.extractedNeeds.budget}` : 'rozpočet flexibilní'}, {state.extractedNeeds.timeline === 'within-week' ? 'do týdne' : state.extractedNeeds.timeline === 'within-month' ? 'do měsíce' : 'termín flexibilní'}
+            Na základě: {state.extractedNeeds.spaceType ?? 'váš prostor'}, {state.extractedNeeds.budget ? `rozpočet ~${state.extractedNeeds.budget} Kč` : 'rozpočet flexibilní'}, {state.extractedNeeds.timeline === 'within-week' ? 'do týdne' : state.extractedNeeds.timeline === 'within-month' ? 'do měsíce' : 'termín flexibilní'}
           </p>
         )}
         <FilterBar

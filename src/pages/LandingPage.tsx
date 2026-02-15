@@ -15,7 +15,7 @@ const MIN_LENGTH = 20
 const QUICK_EXAMPLES = [
   {
     label: 'Stěhování s partnerem',
-    text: 'S partnerem se příští měsíc stěhujeme do dvoupokojového bytu v Praze. Každý máme svůj nábytek a jiný vkus, a potřebujeme pomoct to nějak sladit dohromady v rozpočtu do €80/hod.',
+    text: 'S partnerem se příští měsíc stěhujeme do dvoupokojového bytu v Praze. Každý máme svůj nábytek a jiný vkus, a potřebujeme pomoct to nějak sladit dohromady s rozpočtem do 2000 Kč na konzultaci.',
   },
   {
     label: 'Refresh sdíleného bytu',
@@ -135,7 +135,7 @@ export function LandingPage() {
           <h1 className="text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-[1.05] text-balance">
             Bydlo
           </h1>
-          <p className="mt-5 text-xl lg:text-2xl max-w-2xl leading-relaxed text-gradient-fade">
+          <p className="mt-2.5 text-xl lg:text-2xl max-w-2xl leading-relaxed text-gradient-fade">
             Pomáháme ti bydlet líp — pokoj po pokoji.
           </p>
         </div>
@@ -150,35 +150,16 @@ export function LandingPage() {
           {/* Left column: Input + Scenarios */}
           <div className="lg:col-span-8 space-y-5">
 
+            {/* Intro text with emphasized CTA */}
             <p className="text-base text-muted-foreground">
-              Popiš svou bytovou situaci a my ti najdeme freelance
-              designéra, který ti pomůže.
+              Bydlo propojuje designery a architekty s lidmi, kterým záleží na tom, jak se jim bydlí.{' '}
+              <span className="font-semibold text-foreground">Jako první krok potřebujeme vědět, s čím chceš pomoct.</span>
             </p>
 
-            {/* Quick scenarios — moved above textarea */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-subtle">
-                Typické situace
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {QUICK_EXAMPLES.map((ex) => (
-                  <Button
-                    key={ex.label}
-                    variant="outline"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    onClick={() => setSituationText(ex.text)}
-                  >
-                    {ex.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
             {/* Textarea with inline submit */}
-            <div className="space-y-2">
-              {/* "Start here" badge */}
-              <div className="flex items-center gap-2">
+            <div className="space-y-3">
+              {/* "Start here" badge — increased spacing */}
+              <div className="flex items-center gap-2 pt-2">
                 <span className="text-sm font-medium text-primary">
                   👇 Začni zde
                 </span>
@@ -207,6 +188,7 @@ export function LandingPage() {
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </div>
+
               <p className="text-xs text-muted-foreground mt-1.5">
                 {situationText.length} / 500
                 {situationText.length > 0 && situationText.length < MIN_LENGTH
@@ -214,6 +196,26 @@ export function LandingPage() {
                   : ''}
                 {situationText.length >= MIN_LENGTH ? ' · můžeš pokračovat' : ''}
               </p>
+            </div>
+
+            {/* Quick scenarios — moved below input with increased spacing */}
+            <div className="space-y-2 pt-4">
+              <p className="text-xs font-medium uppercase tracking-wider text-subtle">
+                Typické situace
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_EXAMPLES.map((ex) => (
+                  <Button
+                    key={ex.label}
+                    variant="outline"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    onClick={() => setSituationText(ex.text)}
+                  >
+                    {ex.label}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -334,7 +336,7 @@ export function LandingPage() {
         </div>
 
         {/* Featured consultants */}
-        <section className="mt-28 lg:mt-36">
+        <section className="mt-10 lg:mt-12">
           <div className="flex items-end justify-between mb-8">
             <h2 className="text-2xl lg:text-3xl font-bold tracking-tight text-foreground text-balance">
               Naši konzultanti

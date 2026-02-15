@@ -111,6 +111,7 @@ export interface DesignerSummary {
   specialty: string
   location: string
   hourlyRate: number
+  consultationPrice: string
   availability: string
   yearsExperience: number
   tags: string[]
@@ -153,7 +154,7 @@ async function realScoreDesigners(
   const designerList = designerSummaries
     .map(
       (d) =>
-        `ID: ${d.id} | ${d.name} | ${d.specialty} | ${d.location} | €${d.hourlyRate}/hr | ${d.availability} | ${d.yearsExperience}yr exp | Tags: ${d.tags.join(', ')}\nBio: ${d.shortBio}\nApproach: ${d.approach}`
+        `ID: ${d.id} | ${d.name} | ${d.specialty} | ${d.location} | ${d.consultationPrice} | ${d.availability} | ${d.yearsExperience}yr exp | Tags: ${d.tags.join(', ')}\nBio: ${d.shortBio}\nApproach: ${d.approach}`
     )
     .join('\n\n')
 
@@ -192,39 +193,104 @@ async function realScoreDesigners(
 /**
  * Naive fallback scoring — mirrors the old matchScore() logic from ResultsPage.
  * Used when LLM scoring is unavailable.
+ *
+ * New algorithm (Feb 2024 v2): MUCH wider spread (35-95) with aggressive penalties.
+ * Goal: Top match ~95, 2nd ~70, 3rd+ ~45-60 range.
+ * Budget now based on consultation price, not hourly rate.
  */
 function mockScoreDesigners(
   extractedNeeds: ExtractedNeeds,
   designerSummaries: DesignerSummary[]
 ): DesignerScore[] {
   return designerSummaries.map((d) => {
-    let score = 40
+    let score = 20 // LOW baseline - you must EARN high scores
     const reasons: string[] = []
 
-    if (
-      extractedNeeds.constraints?.length &&
-      extractedNeeds.constraints.some((c) =>
-        c.toLowerCase().includes(d.location.toLowerCase())
+    // Location scoring (CRITICAL - wrong city is devastating)
+    let locationBonus = 0
+    if (extractedNeeds.constraints?.length) {
+      const userCity = extractedNeeds.constraints.find(c =>
+        ['Praha', 'Brno', 'Olomouc', 'Ostrava'].some(city => c.includes(city))
       )
-    ) {
-      score += 20
-      reasons.push(`v ${d.location}`)
+      if (userCity) {
+        if (userCity.toLowerCase().includes(d.location.toLowerCase())) {
+          locationBonus = 30 // Same city
+          reasons.push(`v ${d.location}`)
+        } else {
+          locationBonus = -25 // WRONG CITY = massive penalty
+        }
+      } else {
+        locationBonus = 10 // No city mentioned
+      }
+    } else {
+      locationBonus = 10 // No constraints
     }
+    score += locationBonus
 
-    if (extractedNeeds.budget && d.hourlyRate <= extractedNeeds.budget) {
-      score += 15
-      reasons.push('v rámci rozpočtu')
+    // Budget scoring (consultation price)
+    const priceMatch = d.consultationPrice?.match(/(\d+)\s*Kč/)
+    const consultationPrice = priceMatch ? parseInt(priceMatch[1]) : d.hourlyRate * 1.5
+
+    let budgetBonus = 0
+    if (extractedNeeds.budget) {
+      const budgetDiff = (consultationPrice - extractedNeeds.budget) / extractedNeeds.budget
+      if (budgetDiff <= 0) {
+        budgetBonus = 30 // Perfect - within budget
+        reasons.push('v rámci rozpočtu')
+      } else if (budgetDiff <= 0.1) {
+        budgetBonus = 15 // Within 10%
+      } else if (budgetDiff <= 0.25) {
+        budgetBonus = 5 // Acceptable
+      } else {
+        budgetBonus = -20 // Too expensive
+      }
+    } else {
+      budgetBonus = 5 // No budget mentioned
     }
+    score += budgetBonus
 
-    if (extractedNeeds.timeline && d.availability === extractedNeeds.timeline) {
-      score += 10
-      reasons.push('dostupný/á ve správný čas')
+    // Timeline scoring
+    let timelineBonus = 0
+    if (extractedNeeds.timeline) {
+      if (d.availability === extractedNeeds.timeline) {
+        timelineBonus = 15
+        reasons.push('dostupný/á ve správný čas')
+      } else if (d.availability === 'immediate' && extractedNeeds.timeline === 'within-week') {
+        timelineBonus = 8
+      } else {
+        timelineBonus = -5
+      }
+    } else {
+      timelineBonus = 3
     }
+    score += timelineBonus
 
-    // Add some variation based on designer id hash so scores aren't identical
+    // Priority/tags overlap
+    let tagBonus = 0
+    if (extractedNeeds.priorities?.length) {
+      const tagOverlap = extractedNeeds.priorities.filter(p =>
+        d.tags.some(t => t.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(t.toLowerCase()))
+      ).length
+
+      if (tagOverlap >= 2) {
+        tagBonus = 20 // Multiple tags
+        reasons.push('odpovídá zaměření')
+      } else if (tagOverlap === 1) {
+        tagBonus = 10
+        reasons.push('odpovídá zaměření')
+      } else {
+        tagBonus = -10 // User wants specific things
+      }
+    } else {
+      tagBonus = 2
+    }
+    score += tagBonus
+
+    // Hash variation (LARGE to break ties between similar designers)
     const hash = d.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-    score += (hash % 11) - 5
-    score = Math.max(20, Math.min(95, score))
+    score += (hash % 21) - 10 // ±10 variation
+
+    score = Math.max(35, Math.min(95, score))
 
     return {
       designerId: d.id,
@@ -358,14 +424,14 @@ function mockGenerateFollowUp(request: LLMRequest): LLMResponse {
   }
 
   if (questionCount === 1) {
-    if (text.match(/\d+/) && (text.includes('€') || text.includes('eur') || text.includes('rozpočet') || text.includes('korun') || text.includes('kč'))) {
+    if (text.match(/\d+/) && (text.includes('rozpočet') || text.includes('korun') || text.includes('kč'))) {
       return {
         message: "Poslední otázka — chceš hlavně zařídit to, co už máš, nebo jsi otevřený/á i novým kusům nábytku?",
         shouldContinue: true,
       }
     }
     return {
-      message: "Máš hrubou představu o rozpočtu (třeba v EUR nebo Kč)? A chceš hlavně rozmístit stávající nábytek, nebo jsi otevřený/á i novým věcem?",
+      message: "Kolik jsi zhruba ochotný/á investovat do konzultace (třeba v Kč)? A chceš hlavně rozmístit stávající nábytek, nebo jsi otevřený/á i novým věcem?",
       shouldContinue: true,
     }
   }
@@ -399,9 +465,10 @@ function mockExtractNeeds(conversationHistory: ConversationMessage[]): Extracted
     if (num > 0) needs.spaceType = `~${num} m²`
   }
 
-  const budgetMatch = allText.match(/€?\s*(\d+)\s*[-–]\s*€?\s*(\d+)|(\d+)\s*eur|budget\s*(\d+)/i)
+  // Extract budget in CZK (consultation price, not hourly rate)
+  const budgetMatch = allText.match(/(\d+)\s*[-–]\s*(\d+)\s*(kč|korun)?|(\d+)\s*(kč|korun)|rozpočet\s*(\d+)/i)
   if (budgetMatch) {
-    const a = parseInt(budgetMatch[1] ?? budgetMatch[3] ?? budgetMatch[4] ?? '0', 10)
+    const a = parseInt(budgetMatch[1] ?? budgetMatch[4] ?? budgetMatch[6] ?? '0', 10)
     const b = parseInt(budgetMatch[2] ?? '0', 10)
     needs.budget = b > a ? Math.round((a + b) / 2) : a
   }
