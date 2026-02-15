@@ -129,3 +129,23 @@ For deployment commands, see `DEPLOYMENT.md`.
 - **Styling:** Prefer Tailwind + shadcn theme tokens. Edit `src/index.css` for CSS variables; edit `tailwind.config.js` for theme extensions.
 - **LLM / API:** Real Claude integration is live. API key goes in `.env.local` (local) or Worker secret (prod). Never commit secrets. See `DEPLOYMENT.md` for details.
 - **Deploying:** See `DEPLOYMENT.md` for full guide (Cloudflare Pages + Worker).
+
+## Changelog & Deployment Workflow
+
+**DŮLEŽITÉ: Před každým deployem aktualizuj CHANGELOG.md**
+
+1. **Před deployem:**
+   - Aktualizuj `CHANGELOG.md` s produktovými změnami (ne technickými detaily)
+   - Zapiš datum a popisy změn pro kolegy
+   - Commitni changelog: `git add CHANGELOG.md && git commit -m "Update changelog for deployment [DATE]" && git push`
+
+2. **Deployment (manuální, on-demand):**
+   - Build: `npx vite build`
+   - Deploy: `npx wrangler pages deploy dist --project-name bydlo --branch main --commit-dirty=true`
+
+3. **Proč manuální:**
+   - Vyhneme se automatickým deployům při WIP commitech
+   - Changelog je vždy aktuální před každým deployem
+   - Deploy děláme jen když jsou změny připravené k testování
+
+Detaily viz `DEPLOYMENT.md`.

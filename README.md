@@ -24,8 +24,24 @@ Open [http://localhost:5173](http://localhost:5173).
 | Command      | Description              |
 |-------------|--------------------------|
 | `npm run dev`    | Start dev server         |
-| `npm run build`  | Production build         |
+| `npx vite build`  | Production build (use this instead of npm run build) |
 | `npm run preview`| Preview production build |
+
+## Deployment
+
+**DŮLEŽITÉ: Deployment je manuální. Před každým deployem aktualizuj `CHANGELOG.md`.**
+
+```bash
+# 1. Aktualizuj CHANGELOG.md s produktovými změnami
+# 2. Commitni changelog
+git add CHANGELOG.md && git commit -m "Update changelog for deployment [DATE]" && git push
+
+# 3. Build a deploy
+npx vite build
+npx wrangler pages deploy dist --project-name bydlo --branch main --commit-dirty=true
+```
+
+Detaily viz [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Project structure
 

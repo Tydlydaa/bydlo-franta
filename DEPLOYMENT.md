@@ -41,15 +41,33 @@ If `.env.local` is missing or has no key, the app falls back to mock responses (
 
 ## Deploying the frontend (Cloudflare Pages)
 
+**IMPORTANT: Deployment je manuální. Vždy před deployem aktualizuj CHANGELOG.md.**
+
+### Deployment workflow
+
 ```bash
-# 1. Build (use npx vite build directly to skip tsc strict checks)
+# 1. Aktualizuj CHANGELOG.md
+# - Zapiš produktové změny (ne technické detaily)
+# - Uveď datum a popis změn pro kolegy
+
+# 2. Commitni changelog
+git add CHANGELOG.md
+git commit -m "Update changelog for deployment [DATE]"
+git push
+
+# 3. Build (use npx vite build directly to skip tsc strict checks)
 npx vite build
 
-# 2. Deploy to Cloudflare Pages
+# 4. Deploy to Cloudflare Pages (MANUÁLNĚ, on-demand)
 npx wrangler pages deploy dist --project-name bydlo --branch main --commit-dirty=true
 ```
 
 The site will be live at https://bydlo.pages.dev within seconds.
+
+**Proč manuální deployment:**
+- Changelog musí být aktuální před každým deployem
+- Deploy děláme jen když jsou změny připravené k testování
+- Vyhneme se automatickým deployům při WIP commitech
 
 ### Why Cloudflare Pages instead of GitHub Pages?
 
