@@ -11,6 +11,7 @@ interface DesignerCardProps {
   designer: Designer & { matchReason?: string }
   showMatchScore?: boolean
   isLoadingScore?: boolean
+  showPrice?: boolean  // If true, show price instead of rating (for results page)
   onViewProfile: () => void
 }
 
@@ -58,7 +59,7 @@ function matchCardStyle(score: number) {
   }
 }
 
-export function DesignerCard({ designer, showMatchScore = false, isLoadingScore = false, onViewProfile }: DesignerCardProps) {
+export function DesignerCard({ designer, showMatchScore = false, isLoadingScore = false, showPrice = false, onViewProfile }: DesignerCardProps) {
   const score = showMatchScore ? designer.matchScore : undefined
   const cardStyle = score ? matchCardStyle(score) : {}
 
@@ -85,29 +86,34 @@ export function DesignerCard({ designer, showMatchScore = false, isLoadingScore 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <h3 className="font-semibold text-foreground">{designer.name}</h3>
-              {isLoadingScore && !showMatchScore && (
-                <Skeleton className="h-5 w-20 rounded-full" />
-              )}
-              {showMatchScore && designer.matchScore != null && (
-                <Badge
-                  className="animate-in fade-in duration-500 text-xs font-semibold"
-                  style={matchBadgeStyle(designer.matchScore)}
-                >
-                  {designer.matchScore}% shoda
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                {designer.rating != null && designer.reviewCount != null && (
+                  <DesignerRating rating={designer.rating} reviewCount={designer.reviewCount} />
+                )}
+                {isLoadingScore && !showMatchScore && (
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                )}
+                {showMatchScore && designer.matchScore != null && (
+                  <Badge
+                    className="animate-in fade-in duration-500 text-xs font-semibold"
+                    style={matchBadgeStyle(designer.matchScore)}
+                  >
+                    {designer.matchScore}% shoda
+                  </Badge>
+                )}
+              </div>
             </div>
             <Badge variant="outline" className="mt-1">{specialtyLabel[designer.specialty]}</Badge>
             <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1 flex-wrap">
               <span>{designer.location}</span>
               <span>·</span>
-              <span>{designer.availability === 'immediate' ? 'ihned' : designer.availability === 'within-week' ? 'do týdne' : 'do měsíce'}</span>
-              {designer.rating != null && designer.reviewCount != null && (
+              {showPrice && (
                 <>
+                  <span>{designer.consultationPrice}</span>
                   <span>·</span>
-                  <DesignerRating rating={designer.rating} reviewCount={designer.reviewCount} />
                 </>
               )}
+              <span>{designer.availability === 'immediate' ? 'ihned' : designer.availability === 'within-week' ? 'do týdne' : 'do měsíce'}</span>
             </p>
             {isLoadingScore && !showMatchScore && (
               <Skeleton className="h-3.5 w-48 mt-1.5 rounded" />

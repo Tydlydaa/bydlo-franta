@@ -61,6 +61,7 @@ export function BrowsePage() {
             <DesignerCard
               key={designer.id}
               designer={designer}
+              showPrice={true}
               onViewProfile={() => navigate(`/designer/${designer.id}`)}
             />
           ))}

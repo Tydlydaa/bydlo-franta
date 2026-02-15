@@ -162,6 +162,7 @@ export function ResultsPage() {
               designer={designer}
               showMatchScore={hasScores}
               isLoadingScore={isScoring}
+              showPrice={true}
               onViewProfile={() => navigate(`/designer/${designer.id}`)}
             />
           ))}
