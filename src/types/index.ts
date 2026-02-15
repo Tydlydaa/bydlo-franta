@@ -19,6 +19,8 @@ export interface Designer {
   photo: string
   hourlyRate: number
   consultationPrice: string // e.g. "Úvodní konzultace od 1500 Kč"
+  rating?: number // Average collaboration rating 4.0-5.0
+  reviewCount?: number // Number of reviews
   availability: 'immediate' | 'within-week' | 'within-month'
   location: string
   yearsExperience: number

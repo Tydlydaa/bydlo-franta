@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import type { Designer } from '@/types'
+import { DesignerRating } from './DesignerRating'
 
 interface DesignerCardProps {
   designer: Designer & { matchReason?: string }
@@ -97,8 +98,16 @@ export function DesignerCard({ designer, showMatchScore = false, isLoadingScore 
               )}
             </div>
             <Badge variant="outline" className="mt-1">{specialtyLabel[designer.specialty]}</Badge>
-            <p className="text-sm text-muted-foreground mt-1">
-              {designer.location} · {designer.consultationPrice} · {designer.availability === 'immediate' ? 'ihned' : designer.availability === 'within-week' ? 'do týdne' : 'do měsíce'}
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1 flex-wrap">
+              <span>{designer.location}</span>
+              <span>·</span>
+              <span>{designer.availability === 'immediate' ? 'ihned' : designer.availability === 'within-week' ? 'do týdne' : 'do měsíce'}</span>
+              {designer.rating != null && designer.reviewCount != null && (
+                <>
+                  <span>·</span>
+                  <DesignerRating rating={designer.rating} reviewCount={designer.reviewCount} />
+                </>
+              )}
             </p>
             {isLoadingScore && !showMatchScore && (
               <Skeleton className="h-3.5 w-48 mt-1.5 rounded" />
