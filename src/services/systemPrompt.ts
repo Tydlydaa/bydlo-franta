@@ -108,34 +108,27 @@ Rules:
 
 /**
  * System prompt for LLM-based semantic designer matching.
- * Sent to Haiku with the full conversation + all designer profiles.
+ * OPTIMIZED: Uses compact designer data (tags only, no bio) for faster responses.
  * Returns a JSON array of scores + reasons for each designer.
  * Stays in English (LLM instructions) but reasons must be in Czech (user-visible).
  */
-export const SCORE_DESIGNERS_PROMPT = `You are a matching engine for Bydlo, a platform connecting people with freelance interior designers and architects in the Czech Republic.
+export const SCORE_DESIGNERS_PROMPT = `You are a fast matching engine for Bydlo. Score each designer based on user needs.
 
-Given a user's situation (their conversation with our intake assistant) and a list of available designers, score how well each designer fits the user's needs.
+Designers are in format: id|name|specialty|location|price|availability|tags
 
-## Scoring criteria (in order of importance)
+## Scoring (focus on what matters):
 
-1. **Relevance of expertise** (0-35 pts): Does the designer's specialty, tags, bio, and approach match what the user needs? E.g. if the user wants "nordic style small flat", a designer whose bio mentions scandinavian design and small spaces scores high. Read their full bio and approach — personality and working style matter.
-2. **Location match** (0-25 pts): Same city = 25, nearby city in the same region = 10, different region = 0.
-3. **Budget fit** (0-20 pts): Designer's consultation price (parse from consultationPrice field) vs user's total budget. Well within budget = 20, within 10% = 12, over 20% = 5, way over = 0.
-4. **Availability fit** (0-10 pts): Timeline alignment. Perfect match = 10, close = 5, mismatch = 0.
-5. **Experience & approach fit** (0-10 pts): Does the designer's working style match the user's vibe? E.g. a student wanting cheap help benefits from a budget-focused practical designer, not a luxury architect. A couple wanting a dream home benefits from someone experienced and visionary.
+1. **Location** (0-30 pts): Same city = 30, different = 0
+2. **Tags match** (0-30 pts): Tags match user's priorities? Award points per match
+3. **Budget** (0-20 pts): Price vs user budget. Within = 20, over 30% = 0
+4. **Availability** (0-10 pts): Timing match = 10, mismatch = 0
+5. **Specialty** (0-10 pts): Interior/architect/both vs user needs
 
-## Output format
-
-Respond with ONLY a valid JSON array, no markdown fences, no explanation:
-
-[{"id":"designer-id","score":85,"reason":"Specializuje se na malé prostory ve skandinávském stylu v Praze, v rámci rozpočtu"},...]
-
-IMPORTANT: The "reason" field MUST be written in Czech. The users are Czech speakers.
+Output ONLY valid JSON array (no markdown):
+[{"id":"designer-id","score":85,"reason":"V Praze, odpovídá rozpočtu, specializace na malé prostory"},...]
 
 Rules:
-- Score ALL designers in the list. Do not skip any.
-- Scores MUST spread widely across 35-95 range. Top 3 designers should score 80+. Bottom 3 should score below 55. Avoid clustering scores in 70-85 range — users need clear differentiation for "wow" factor.
-- The "reason" should be 1 concise sentence in Czech (under 15 words) explaining the key match factor.
-- Be honest about poor matches — a luxury architect IS a bad fit for a student on a budget.
-- Consider the FULL designer profile (bio + approach + tags + specialty), not just surface-level keyword overlap.
-- If the user hasn't specified something (e.g. no budget mentioned), don't penalize designers for it — score that dimension neutrally.`
+- Score ALL designers
+- Scores MUST spread 35-95. Top 3: 80+. Bottom 3: <55. NO clustering 70-85
+- Reason in CZECH (max 12 words)
+- Be decisive: bad matches get <50, great matches get 85+`
