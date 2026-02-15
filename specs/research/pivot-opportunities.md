@@ -18,6 +18,7 @@
 
 **Možný pivot:**
 - Platforma pro koordinaci stěhování (in-out na obou stranách)
+    - je to multi-stakeholder problém do kterého vstupuje hodně aktérů s různýma potřebama a z různých komunikačních perspektiv a všichni chtějí, aby to pro ně byla nejmenší otrava
 - "Concierge" služba pro řešení drobností (kolínka, přepisy energií, montáže)
 - Zapojení second-hand marketů (Wilhaben ve Vídni) s logistikou
 

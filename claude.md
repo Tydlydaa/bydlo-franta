@@ -130,6 +130,34 @@ For deployment commands, see `DEPLOYMENT.md`.
 - **LLM / API:** Real Claude integration is live. API key goes in `.env.local` (local) or Worker secret (prod). Never commit secrets. See `DEPLOYMENT.md` for details.
 - **Deploying:** See `DEPLOYMENT.md` for full guide (Cloudflare Pages + Worker).
 
+## Git Workflow — CRITICAL
+
+**⚠️ NEVER commit or push automatically. The user controls all git operations.**
+
+**Rules:**
+1. **NEVER run `git commit` or `git push` without explicit user instruction**
+2. **NEVER use `git add` followed by commit/push in the same command chain**
+3. After making code changes, **STOP and inform the user** about what was changed
+4. Let the user decide when and how to commit/push
+5. If the user asks you to "commit this" or "push changes", you may do so — but ONLY when explicitly requested
+
+**What you CAN do:**
+- `git status` — check status anytime
+- `git diff` — show changes
+- `git log` — view history
+- `git add <files>` — stage files (only when user asks)
+
+**What you CANNOT do without explicit permission:**
+- `git commit` — FORBIDDEN unless user explicitly asks
+- `git push` — FORBIDDEN unless user explicitly asks
+- `git add . && git commit && git push` — ABSOLUTELY FORBIDDEN
+
+**Example workflow:**
+1. You make code changes
+2. You tell user: "I've updated X, Y, Z files. Changes are ready for you to review and commit."
+3. User reviews and decides to commit/push themselves OR asks you to do it
+4. Only then (if asked) you run git commands
+
 ## Changelog & Deployment Workflow
 
 **DŮLEŽITÉ: Před každým deployem aktualizuj CHANGELOG.md**
