@@ -4,6 +4,7 @@ import { useConversation } from '@/context/ConversationContext'
 import { ConversationThread } from '@/components/ConversationThread'
 import { generateFollowUp, extractNeeds } from '@/services/llmService'
 import { SYSTEM_PROMPT } from '@/services/systemPrompt'
+import { detectChoiceSet } from '@/services/choiceDetection'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import type { ConversationMessage } from '@/types'
 
@@ -72,7 +73,12 @@ export function ConversationPage() {
           conversationHistory: history,
           systemPrompt: SYSTEM_PROMPT,
         })
-        addMessage({ role: 'assistant', content: response.message })
+        const choices = detectChoiceSet(response.message)
+        addMessage({
+          role: 'assistant',
+          content: response.message,
+          suggestedChoices: choices ?? undefined,
+        })
         if (!response.shouldContinue) {
           const fullHistory = [
             ...history,
@@ -114,7 +120,12 @@ export function ConversationPage() {
         conversationHistory: fullHistory,
         systemPrompt: SYSTEM_PROMPT,
       })
-      addMessage({ role: 'assistant', content: llmResponse.message })
+      const choices = detectChoiceSet(llmResponse.message)
+      addMessage({
+        role: 'assistant',
+        content: llmResponse.message,
+        suggestedChoices: choices ?? undefined,
+      })
 
       if (!llmResponse.shouldContinue) {
         const completeHistory = [

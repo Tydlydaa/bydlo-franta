@@ -36,6 +36,8 @@ export interface ConversationMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  suggestedChoices?: string[]  // Optional button choices for user response
+  allowFreeText?: boolean      // Allow "Něco jiného…" escape hatch (default: true)
 }
 
 export interface ExtractedNeeds {

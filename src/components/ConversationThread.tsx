@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { ConversationMessage } from '@/components/ConversationMessage'
+import { ChoiceButtons } from '@/components/ChoiceButtons'
 import type { ConversationMessage as MessageType } from '@/types'
 
 interface ConversationThreadProps {
@@ -21,6 +22,7 @@ export function ConversationThread({
   onSeeMatches,
 }: ConversationThreadProps) {
   const [input, setInput] = useState('')
+  const [showFreeText, setShowFreeText] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -56,18 +58,47 @@ export function ConversationThread({
         {isComplete ? (
           <Button onClick={onSeeMatches} className="w-full">Zobrazit shody</Button>
         ) : (
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Napište odpověď…"
-              disabled={isWaitingForLLM}
-              className="flex-1"
-            />
-            <Button type="submit" disabled={!input.trim() || isWaitingForLLM}>
-              Odeslat
-            </Button>
-          </form>
+          <div className="space-y-3">
+            {/* Get last assistant message to check for choices */}
+            {(() => {
+              const lastAssistantMessage = [...messages].reverse().find((m) => m.role === 'assistant')
+              const hasChoices = lastAssistantMessage?.suggestedChoices && lastAssistantMessage.suggestedChoices.length > 0
+
+              return (
+                <>
+                  {/* Choice buttons (if available and free text not shown) */}
+                  {hasChoices && !showFreeText && (
+                    <ChoiceButtons
+                      choices={lastAssistantMessage.suggestedChoices!}
+                      onChoiceClick={(choice) => {
+                        onUserResponse(choice)
+                        setShowFreeText(false) // Reset for next question
+                      }}
+                      disabled={isWaitingForLLM}
+                      onShowFreeText={() => setShowFreeText(true)}
+                    />
+                  )}
+
+                  {/* Free text input (always shown if no choices, or after "Něco jiného…" click) */}
+                  {(!hasChoices || showFreeText) && (
+                    <form onSubmit={handleSubmit} className="flex gap-2">
+                      <Input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Napište odpověď…"
+                        disabled={isWaitingForLLM}
+                        className="flex-1"
+                        autoFocus={showFreeText} // Focus when revealed
+                      />
+                      <Button type="submit" disabled={!input.trim() || isWaitingForLLM}>
+                        Odeslat
+                      </Button>
+                    </form>
+                  )}
+                </>
+              )
+            })()}
+          </div>
         )}
       </div>
     </div>

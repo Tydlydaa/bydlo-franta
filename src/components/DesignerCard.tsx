@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 import type { Designer } from '@/types'
 
 interface DesignerCardProps {
@@ -35,11 +36,47 @@ function matchBadgeStyle(score: number) {
   }
 }
 
+/**
+ * Generate card-level styling based on match score.
+ * Returns background gradient, border color, and border width.
+ * Higher score → stronger terracotta tint + thicker colored border.
+ */
+function matchCardStyle(score: number) {
+  const normalized = Math.max(0, Math.min(1, (score - 30) / 60))
+
+  // Card background: subtle terracotta tint
+  const cardBgOpacity = 0.02 + normalized * 0.06 // 0.02 → 0.08
+
+  // Border: stronger for high scores
+  const borderOpacity = 0.1 + normalized * 0.4 // 0.1 → 0.5
+
+  return {
+    background: `linear-gradient(to bottom right, hsl(40 20% 99%), hsl(13 52% 53% / ${cardBgOpacity}))`,
+    borderColor: `hsl(13 52% 53% / ${borderOpacity})`,
+    borderWidth: score >= 80 ? '2px' : '1px',
+  }
+}
+
 export function DesignerCard({ designer, showMatchScore = false, isLoadingScore = false, onViewProfile }: DesignerCardProps) {
+  const score = showMatchScore ? designer.matchScore : undefined
+  const cardStyle = score ? matchCardStyle(score) : {}
+
   return (
-    <Card className="overflow-hidden border border-transparent shadow-[0_1px_3px_0_rgb(0_0_0/0.04)] hover:shadow-[0_8px_24px_0_rgb(0_0_0/0.06)] hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 ease-out">
+    <Card
+      className={cn(
+        "overflow-hidden shadow-[0_1px_3px_0_rgb(0_0_0/0.04)] transition-all duration-300 ease-out",
+        // Hover states (enhanced for high matches)
+        score && score >= 80
+          ? "hover:shadow-xl hover:-translate-y-0.5 hover:border-primary/60"
+          : "hover:shadow-[0_8px_24px_0_rgb(0_0_0/0.06)] hover:-translate-y-0.5 hover:border-primary/30"
+      )}
+      style={cardStyle}
+    >
       <CardContent className="p-0">
-        <div className="flex gap-4 p-4">
+        <div className={cn(
+          "flex gap-4",
+          score && score >= 80 ? "p-6" : "p-4"
+        )}>
           <Avatar className="h-16 w-16 shrink-0">
             <AvatarImage src={designer.photo} alt={designer.name} />
             <AvatarFallback>{designer.name.slice(0, 2)}</AvatarFallback>
@@ -67,7 +104,12 @@ export function DesignerCard({ designer, showMatchScore = false, isLoadingScore 
               <Skeleton className="h-3.5 w-48 mt-1.5 rounded" />
             )}
             {showMatchScore && designer.matchReason && (
-              <p className="text-xs text-primary/70 mt-1.5 italic animate-in fade-in duration-500">
+              <p className={cn(
+                "mt-1.5 animate-in fade-in duration-500",
+                score && score >= 80
+                  ? "text-sm font-semibold text-primary"
+                  : "text-xs text-primary/70 italic"
+              )}>
                 {designer.matchReason}
               </p>
             )}
@@ -75,7 +117,10 @@ export function DesignerCard({ designer, showMatchScore = false, isLoadingScore 
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pt-0 pb-4 px-4">
+      <CardFooter className={cn(
+        "pt-0",
+        score && score >= 80 ? "pb-6 px-6" : "pb-4 px-4"
+      )}>
         <Button variant="outline" className="w-full" onClick={onViewProfile}>
           Zobrazit profil
         </Button>

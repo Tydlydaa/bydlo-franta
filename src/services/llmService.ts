@@ -348,7 +348,12 @@ function toAnthropicMessages(
 
 async function realLLMCall(request: LLMRequest): Promise<LLMResponse> {
   const messages = toAnthropicMessages(request.conversationHistory)
-  const text = await callClaude(request.systemPrompt, messages)
+  const text = await callClaude(
+    request.systemPrompt,
+    messages,
+    350,  // Reduced from 512 (shorter responses with choice buttons)
+    'claude-haiku-4-5-20251001'  // Fast Haiku model
+  )
 
   // Detect [COMPLETE] prefix
   const isComplete = text.startsWith('[COMPLETE]')
@@ -376,7 +381,7 @@ async function realExtractNeeds(
   ]
 
   try {
-    const text = await callClaude(EXTRACT_NEEDS_PROMPT, extractionMessages, 1024)
+    const text = await callClaude(EXTRACT_NEEDS_PROMPT, extractionMessages, 512, 'claude-haiku-4-5-20251001')
 
     // Try to parse JSON — handle cases where model wraps in ```json
     const jsonStr = text.replace(/^```json?\n?/, '').replace(/\n?```$/, '').trim()

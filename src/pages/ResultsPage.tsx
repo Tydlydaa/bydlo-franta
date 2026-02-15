@@ -155,7 +155,7 @@ export function ResultsPage() {
             <option value="location">Řadit dle města</option>
           </select>
         </div>
-        <div className="grid gap-5 mt-6 sm:grid-cols-1 lg:grid-cols-2">
+        <div className="grid gap-5 lg:gap-6 mt-6 sm:grid-cols-1 lg:grid-cols-2">
           {filteredAndScored.map((designer) => (
             <DesignerCard
               key={designer.id}
