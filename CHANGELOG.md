@@ -2,6 +2,14 @@
 
 Přehled změn v Bydlo prototypu pro discovery výzkum.
 
+## [2026-03-03] - Headline update
+
+### Co se změnilo
+
+**Změna titulku stránky**
+- Hlavní titulek změněn z "Bydlo" na "BydloOOO"
+- Znalostní zdroj: https://github.com/erikvanek/bydlo/pull/new/change-headline-to-bydloooo
+
 ## [2025-02-16] - Social proof (rating systém)
 
 ### Co se změnilo
