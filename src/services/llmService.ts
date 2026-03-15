@@ -1,5 +1,5 @@
 import type { ConversationMessage, ExtractedNeeds, DesignerScore } from '@/types'
-import { EXTRACT_NEEDS_PROMPT, ANALYZE_DESCRIPTION_PROMPT, SCORE_DESIGNERS_PROMPT } from './systemPrompt'
+import { EXTRACT_NEEDS_PROMPT, ANALYZE_DESCRIPTION_PROMPT } from './systemPrompt'
 
 export interface LLMRequest {
   conversationHistory: ConversationMessage[]
@@ -126,7 +126,7 @@ export interface DesignerSummary {
  * Result: ~4-5s wait → instant (<100ms).
  */
 export async function scoreDesigners(
-  conversationHistory: ConversationMessage[],
+  _conversationHistory: ConversationMessage[],
   extractedNeeds: ExtractedNeeds,
   designerSummaries: DesignerSummary[]
 ): Promise<DesignerScore[]> {
@@ -134,60 +134,6 @@ export async function scoreDesigners(
   return mockScoreDesigners(extractedNeeds, designerSummaries)
 }
 
-async function realScoreDesigners(
-  conversationHistory: ConversationMessage[],
-  extractedNeeds: ExtractedNeeds,
-  designerSummaries: DesignerSummary[]
-): Promise<DesignerScore[]> {
-  // Build the user message: conversation context + designer list
-  const conversationText = conversationHistory
-    .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-    .join('\n')
-
-  const needsSummary = Object.entries(extractedNeeds)
-    .filter(([, v]) => v != null && (Array.isArray(v) ? v.length > 0 : true))
-    .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-    .join('; ')
-
-  // OPTIMIZED: Send only essential designer info (not full bio/approach) to reduce tokens & latency
-  const designerList = designerSummaries
-    .map(
-      (d) =>
-        `${d.id}|${d.name}|${d.specialty}|${d.location}|${d.consultationPrice}|${d.availability}|${d.tags.join(',')}`
-    )
-    .join('\n')
-
-  const userMessage = `## User's needs\n${needsSummary || 'General inquiry'}\n\n## Designers (id|name|specialty|location|price|avail|tags)\n${designerList}`
-
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 8000) // Reduced from 10s
-
-  try {
-    const raw = await callClaude(
-      SCORE_DESIGNERS_PROMPT,
-      [{ role: 'user', content: userMessage }],
-      1500, // Reduced from 4096 - only need JSON array
-      'claude-haiku-4-5-20251001',
-      controller.signal
-    )
-
-    clearTimeout(timeout)
-
-    const jsonStr = raw.replace(/^```json?\n?/, '').replace(/\n?```$/, '').trim()
-    const parsed = JSON.parse(jsonStr)
-
-    if (!Array.isArray(parsed)) throw new Error('Expected JSON array')
-
-    return parsed.map((entry: { id?: string; score?: number; reason?: string }) => ({
-      designerId: entry.id ?? '',
-      score: typeof entry.score === 'number' ? Math.max(0, Math.min(100, entry.score)) : 50,
-      reason: entry.reason ?? '',
-    }))
-  } catch (e) {
-    clearTimeout(timeout)
-    throw e
-  }
-}
 
 /**
  * Naive fallback scoring — mirrors the old matchScore() logic from ResultsPage.

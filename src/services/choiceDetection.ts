@@ -6,8 +6,6 @@ import { CHOICE_SETS } from '@/data/conversationChoices'
  * Returns null if no pattern matched → fallback to free text.
  */
 export function detectChoiceSet(assistantMessage: string): string[] | null {
-  const lower = assistantMessage.toLowerCase()
-
   // Location patterns
   if (/(které město|kde|lokalit|nacházíš|Praha|Brno)/i.test(assistantMessage)) {
     return [...CHOICE_SETS.LOCATION]
