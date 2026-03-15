@@ -7,7 +7,7 @@ interface ConversationMessageProps {
   isLatest?: boolean
 }
 
-export function ConversationMessage({ message, isLatest = false }: ConversationMessageProps) {
+export function ConversationMessage({ message }: ConversationMessageProps) {
   const isUser = message.role === 'user'
 
   return (

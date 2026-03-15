@@ -16,8 +16,6 @@ interface FilterBarProps {
   filters: FilterState
 }
 
-const LOCATION_OPTIONS = ['Všechna města', 'Praha', 'Brno', 'Olomouc', 'Ostrava']
-const SPECIALTY_OPTIONS = ['Všechny obory', 'Interiérový design', 'Architektura', 'Obojí']
 const AVAILABILITY_OPTIONS = [
   { value: 'immediate' as const, label: 'Ihned' },
   { value: 'within-week' as const, label: 'Do týdne' },
