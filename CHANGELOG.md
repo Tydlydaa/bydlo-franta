@@ -2,6 +2,13 @@
 
 Přehled změn v Bydlo prototypu pro discovery výzkum.
 
+## [2026-03-31] - Navigace zpět
+
+### Co se změnilo
+
+- Přidán odkaz `← Zpět na úvod` na stránky Browse a Results
+- Stejný styl jako existující `← Zpět na výsledky` na detailu designéra
+
 ## [2025-02-16] - Social proof (rating systém)
 
 ### Co se změnilo

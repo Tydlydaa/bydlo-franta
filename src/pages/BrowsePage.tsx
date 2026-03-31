@@ -49,6 +49,9 @@ export function BrowsePage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-5xl mx-auto px-4 py-8">
+        <button type="button" onClick={() => navigate('/')} className="text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 block">
+          ← Zpět na úvod
+        </button>
         <h1 className="text-2xl font-bold mb-6">Prohlédnout designéry</h1>
         <FilterBar
           filters={filters}
