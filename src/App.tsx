@@ -5,6 +5,7 @@ import { ConversationPage } from '@/pages/ConversationPage'
 import { ResultsPage } from '@/pages/ResultsPage'
 import { DesignerDetailPage } from '@/pages/DesignerDetailPage'
 import { BrowsePage } from '@/pages/BrowsePage'
+import { ArchitectLandingPage } from '@/pages/ArchitectLandingPage'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/results" element={<ResultsPage />} />
         <Route path="/browse" element={<BrowsePage />} />
         <Route path="/designer/:id" element={<DesignerDetailPage />} />
+        <Route path="/pro-architekty" element={<ArchitectLandingPage />} />
       </Routes>
     </ConversationProvider>
   )

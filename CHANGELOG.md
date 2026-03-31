@@ -2,6 +2,14 @@
 
 Přehled změn v Bydlo prototypu pro discovery výzkum.
 
+## [2026-04-01] - Landing page pro architekty
+
+### Co se změnilo
+
+- Nová stránka `/pro-architekty` — landing page pro supply side
+- Vysvětluje proces registrace, ověření a průběh každé spolupráce
+- E-mailový formulář pro zájem o zapojení
+
 ## [2026-03-31] - Navigace zpět
 
 ### Co se změnilo
